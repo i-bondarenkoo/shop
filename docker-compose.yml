@@ -1,0 +1,12 @@
+services:
+  pg:
+    image: postgres
+    environment:
+      POSTGRES_DB: shop_app
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      PGDATA: /var/lib/postgresql/data
+    ports:
+      - "5435:5432"
+    volumes:
+      - ./postgresdata:/var/lib/postgresql/data
