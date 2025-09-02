@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 import uvicorn
-from application.core.config import settings
+from core.config import settings
 
 app = FastAPI(title="Приложение магазин товаров")
 
