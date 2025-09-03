@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     run: RunConfig = RunConfig()
     api: ApiPrefix = ApiPrefix()
     model_config = SettingsConfigDict(
-        env_file="../.env",
+        env_file=".env",
         env_file_encoding="utf-8",
         env_prefix="PARAMETRS_",
     )

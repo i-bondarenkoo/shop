@@ -1,1 +1,1 @@
-from core.config import settings
+from application.core.config import settings
