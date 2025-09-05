@@ -58,9 +58,5 @@ async def get_list_users_by_id(
     users: list = await get_list_users_by_id_crud(
         start=start, stop=stop, session=session
     )
-    if not users:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Список пользователей  пуст",
-        )
+
     return users
