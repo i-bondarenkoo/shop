@@ -29,10 +29,6 @@ async def create_user(
     "/{user_id}",
     response_model=ResponseUser,
     status_code=status.HTTP_200_OK,
-    responses={
-        404: {"description": "Пользователь не найден"},
-        422: {"description": "Некорректный ID"},
-    },
 )
 async def get_user_by_id(
     user_id: Annotated[
