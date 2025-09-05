@@ -19,4 +19,8 @@ class UserOrm(Base):
     hashed_password: Mapped[str] = mapped_column(String(100), nullable=False)
 
     # relation
-    orders: Mapped[list["OrderOrm"]] = relationship("OrderOrm", back_populates="user")
+    orders: Mapped[list["OrderOrm"]] = relationship(
+        "OrderOrm",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
