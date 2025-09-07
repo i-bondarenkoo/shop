@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from application.auth.security import hash_password
-from application.schemas.user import CreateUser
+from application.schemas.user import CreateUser, UpdateUser
 from application.models.user import UserOrm
 from sqlalchemy import select
 
@@ -32,3 +32,27 @@ async def get_list_users_by_id_crud(
     list_users_orm = await session.execute(stmt)
     users: list = list_users_orm.scalars().all()
     return users
+
+
+async def update_user_crud(user_data: UpdateUser, user_id: int, session: AsyncSession):
+    user = await get_user_by_id_crud(user_id=user_id, session=session)
+    if user is None:
+        return None
+    # преобразуем данные из JSON в словарик питона
+    data: dict = user_data.model_dump(exclude_unset=True)
+
+    for key, value in data.items():
+        if value is not None:
+            setattr(user, key, value)
+    await session.commit()
+    await session.refresh(user)
+    return user
+
+
+async def delete_user_crud(user_id: int, session: AsyncSession):
+    user = await session.get(UserOrm, user_id)
+    if user is None:
+        return None
+    await session.delete(user)
+    await session.commit()
+    return {"message": "Пользователь удален"}
