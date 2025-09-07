@@ -3,7 +3,8 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import ForeignKey, String, Integer, DateTime
 from datetime import datetime
 from typing import TYPE_CHECKING
-
+from application.schemas.order import OrderStatus
+from sqlalchemy import Enum as SQLEnum
 
 if TYPE_CHECKING:
     from application.models.user import UserOrm
@@ -14,7 +15,9 @@ class OrderOrm(Base):
     __tablename__ = "orders"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    status: Mapped[str] = mapped_column(String(30), nullable=False)
+    status: Mapped[OrderStatus] = mapped_column(
+        SQLEnum(OrderStatus), nullable=False, default=OrderStatus.created
+    )
     user_id: Mapped[int] = mapped_column(
         Integer,
         ForeignKey("users.id", ondelete="CASCADE"),
