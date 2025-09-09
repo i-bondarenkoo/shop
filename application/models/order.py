@@ -5,6 +5,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 from application.schemas.order import OrderStatus
 from sqlalchemy import Enum as SQLEnum
+from sqlalchemy import text
 
 if TYPE_CHECKING:
     from application.models.user import UserOrm
@@ -22,8 +23,10 @@ class OrderOrm(Base):
         Integer,
         ForeignKey("users.id", ondelete="CASCADE"),
     )
-    total_price: Mapped[int] = mapped_column(Integer, nullable=False)
-    creted_at: Mapped[datetime] = mapped_column(
+    total_price: Mapped[int] = mapped_column(
+        Integer, default=0, server_default=text("0"), nullable=False
+    )
+    created_at: Mapped[datetime] = mapped_column(
         DateTime,
         default=datetime.utcnow,
     )

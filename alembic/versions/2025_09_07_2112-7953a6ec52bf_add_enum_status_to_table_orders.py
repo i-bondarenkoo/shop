@@ -20,7 +20,7 @@ depends_on: Union[str, Sequence[str], None] = None
 def upgrade() -> None:
     """Upgrade schema."""
     # создаём ENUM тип
-    orderstatus = sa.Enum("created", "packed", "paid", name="orderstatus")
+    orderstatus = sa.Enum("created", "packed", "paid", "canceled", name="orderstatus")
     orderstatus.create(op.get_bind(), checkfirst=True)
 
     # изменяем колонку с использованием USING (для пустой таблицы это безопасно)
@@ -37,5 +37,5 @@ def downgrade() -> None:
     )
 
     # удаляем ENUM
-    orderstatus = sa.Enum("created", "packed", "paid", name="orderstatus")
+    orderstatus = sa.Enum("created", "packed", "paid", "canceled", name="orderstatus")
     orderstatus.drop(op.get_bind(), checkfirst=True)
