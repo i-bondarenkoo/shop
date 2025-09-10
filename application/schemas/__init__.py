@@ -6,4 +6,8 @@ from application.schemas.order import (
     ResponseOrder,
     UpdateOrder,
 )
-from application.schemas.order_items import CreateOrderItem, ResponseOrderItem
+from application.schemas.order_items import (
+    CreateOrderItem,
+    ResponseOrderItem,
+    UpdateOrderItem,
+)
