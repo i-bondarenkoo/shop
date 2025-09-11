@@ -14,6 +14,4 @@ class ResponseOrderItem(CreateOrderItem):
 
 
 class UpdateOrderItem(BaseModel):
-    product_id: int
-    order_id: int
     new_quantity: int
