@@ -1,7 +1,12 @@
 from application.db.database import db_helper
 from fastapi import Depends, HTTPException, Path, Body, Query, status, APIRouter
 from sqlalchemy.ext.asyncio import AsyncSession
-from application.schemas.order import CreateOrder, ResponseOrder, UpdateOrder
+from application.schemas.order import (
+    CreateOrder,
+    ResponseOrder,
+    UpdateOrder,
+    ResponseOrderWithRelationship,
+)
 from typing import Annotated
 from application.crud.order import (
     create_order_crud,
@@ -31,7 +36,7 @@ async def create_order(
     return current_user
 
 
-@router.get("/{order_id}", response_model=ResponseOrder)
+@router.get("/{order_id}", response_model=ResponseOrderWithRelationship)
 async def get_order_by_id(
     order_id: Annotated[
         int, Path(gt=0, description="ID заказа для получения детальной информации")
@@ -47,7 +52,7 @@ async def get_order_by_id(
     return order
 
 
-@router.get("/", response_model=list[ResponseOrder])
+@router.get("/", response_model=list[ResponseOrderWithRelationship])
 async def get_list_orders(
     start: int = Query(0, ge=0, description="Начальный диапазон списка заказов"),
     stop: int = Query(3, gt=1, description="Конечный диапазон списка заказов"),

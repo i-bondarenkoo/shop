@@ -3,6 +3,7 @@ from application.auth.security import hash_password
 from application.schemas.user import CreateUser, UpdateUser
 from application.models.user import UserOrm
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 
 
 async def create_user_crud(user_data: CreateUser, session: AsyncSession):
@@ -19,7 +20,15 @@ async def create_user_crud(user_data: CreateUser, session: AsyncSession):
 
 
 async def get_user_by_id_crud(user_id: int, session: AsyncSession):
-    user = await session.get(UserOrm, user_id)
+    stmt = (
+        select(UserOrm)
+        .where(UserOrm.id == user_id)
+        .options(
+            selectinload(UserOrm.orders),
+        )
+    )
+    result = await session.execute(stmt)
+    user = result.scalars().first()
     if user is None:
         return None
     return user
@@ -28,7 +37,17 @@ async def get_user_by_id_crud(user_id: int, session: AsyncSession):
 async def get_list_users_by_id_crud(
     session: AsyncSession, start: int = 0, stop: int = 3
 ):
-    stmt = select(UserOrm).order_by(UserOrm.id).offset(start).limit(stop - start)
+    stmt = (
+        select(UserOrm)
+        .order_by(UserOrm.id)
+        .options(
+            selectinload(
+                UserOrm.orders,
+            )
+        )
+        .offset(start)
+        .limit(stop - start)
+    )
     list_users_orm = await session.execute(stmt)
     users: list = list_users_orm.scalars().all()
     return users

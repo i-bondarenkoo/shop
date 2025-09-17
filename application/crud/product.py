@@ -3,6 +3,7 @@ from application.models.product import ProductOrm
 from application.db.database import db_helper
 from application.schemas.product import CreateProduct, UpdateProduct
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 
 
 async def create_product_crud(product_data: CreateProduct, session: AsyncSession):
@@ -14,7 +15,15 @@ async def create_product_crud(product_data: CreateProduct, session: AsyncSession
 
 
 async def get_product_by_id_crud(product_id: int, session: AsyncSession):
-    product = await session.get(ProductOrm, product_id)
+    stmt = (
+        select(ProductOrm)
+        .where(ProductOrm.id == product_id)
+        .options(
+            selectinload(ProductOrm.items),
+        )
+    )
+    result = await session.execute(stmt)
+    product = result.scalars().first()
     if product is None:
         return None
     return product
@@ -23,7 +32,17 @@ async def get_product_by_id_crud(product_id: int, session: AsyncSession):
 async def get_list_product_by_id_crud(
     session: AsyncSession, start: int = 0, stop: int = 3
 ):
-    stmt = select(ProductOrm).order_by(ProductOrm.id).offset(start).limit(stop - start)
+    stmt = (
+        select(ProductOrm)
+        .order_by(ProductOrm.id)
+        .options(
+            selectinload(
+                ProductOrm.items,
+            )
+        )
+        .offset(start)
+        .limit(stop - start)
+    )
     result = await session.execute(stmt)
     list_products: list = result.scalars().all()
     return list_products

@@ -1,9 +1,11 @@
 from re import L
 from sqlalchemy.ext.asyncio import AsyncSession
 from application.models.order import OrderOrm
+from application.models.order_items import OrderItemOrm
 from application.schemas.order import CreateOrder, UpdateOrder
 from application.crud.user import get_user_by_id_crud
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 
 
 async def create_order_crud(order_data: CreateOrder, session: AsyncSession):
@@ -20,7 +22,16 @@ async def create_order_crud(order_data: CreateOrder, session: AsyncSession):
 
 
 async def get_order_by_id_crud(order_id: int, session: AsyncSession):
-    order = await session.get(OrderOrm, order_id)
+    stmt = (
+        select(OrderOrm)
+        .where(OrderOrm.id == order_id)
+        .options(
+            selectinload(OrderOrm.user),
+            selectinload(OrderOrm.items).selectinload(OrderItemOrm.product),
+        )
+    )
+    result = await session.execute(stmt)
+    order = result.scalars().first()
     if order is None:
         return None
     return order
@@ -29,7 +40,16 @@ async def get_order_by_id_crud(order_id: int, session: AsyncSession):
 async def get_list_order_by_id_crud(
     session: AsyncSession, start: int = 0, stop: int = 3
 ):
-    stmt = select(OrderOrm).order_by(OrderOrm.id).offset(start).limit(stop - start)
+    stmt = (
+        select(OrderOrm)
+        .order_by(OrderOrm.id)
+        .options(
+            selectinload(OrderOrm.user),
+            selectinload(OrderOrm.items).selectinload(OrderItemOrm.product),
+        )
+        .offset(start)
+        .limit(stop - start)
+    )
     result = await session.execute(stmt)
     list_orders: list = result.scalars().all()
     return list_orders

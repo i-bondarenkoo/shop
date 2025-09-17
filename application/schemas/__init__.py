@@ -1,13 +1,30 @@
-from application.schemas.user import CreateUser, ResponseUser, UpdateUser
-from application.schemas.product import CreateProduct, ResponseProduct, UpdateProduct
+from application.schemas.user import (
+    CreateUser,
+    ResponseUser,
+    UpdateUser,
+    ResponseUserWithOrder,
+)
+from application.schemas.product import (
+    CreateProduct,
+    ResponseProduct,
+    UpdateProduct,
+    ResponseProductWithItems,
+)
 from application.schemas.order import (
     OrderStatus,
     CreateOrder,
     ResponseOrder,
     UpdateOrder,
+    ResponseOrderWithRelationship,
 )
 from application.schemas.order_items import (
     CreateOrderItem,
     ResponseOrderItem,
     UpdateOrderItem,
+    ResponseOrderItemWithOutID,
+    ResponseOrderItemWithOutProductID,
 )
+
+ResponseOrderWithRelationship.model_rebuild()
+ResponseUserWithOrder.model_rebuild()
+ResponseProductWithItems.model_rebuild()

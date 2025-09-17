@@ -7,7 +7,12 @@ from application.crud.product import (
 )
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import Depends, HTTPException, Body, Path, Query, status, APIRouter
-from application.schemas.product import CreateProduct, ResponseProduct, UpdateProduct
+from application.schemas.product import (
+    CreateProduct,
+    ResponseProduct,
+    UpdateProduct,
+    ResponseProductWithItems,
+)
 from typing import Annotated
 from application.db.database import db_helper
 
@@ -27,7 +32,7 @@ async def create_product(
     return await create_product_crud(product_data=product_data, session=session)
 
 
-@router.get("/{product_id}", response_model=ResponseProduct)
+@router.get("/{product_id}", response_model=ResponseProductWithItems)
 async def get_product_by_id(
     product_id: Annotated[
         int, Path(gt=0, description="ID продукта для получения информации")
@@ -42,7 +47,7 @@ async def get_product_by_id(
     return product
 
 
-@router.get("/", response_model=list[ResponseProduct])
+@router.get("/", response_model=list[ResponseProductWithItems])
 async def get_list_product_by_id(
     start: int = Query(0, ge=0, description="Начальный диапазон списка продуктов"),
     stop: int = Query(3, gt=0, description="Конечный диапазон списка продуктов"),

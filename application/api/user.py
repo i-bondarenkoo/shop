@@ -7,7 +7,12 @@ from application.crud.user import (
     update_user_crud,
     delete_user_crud,
 )
-from application.schemas.user import CreateUser, ResponseUser, UpdateUser
+from application.schemas.user import (
+    CreateUser,
+    ResponseUser,
+    UpdateUser,
+    ResponseUserWithOrder,
+)
 from typing import Annotated
 from application.db.database import db_helper
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -30,7 +35,7 @@ async def create_user(
 
 @router.get(
     "/{user_id}",
-    response_model=ResponseUser,
+    response_model=ResponseUserWithOrder,
     status_code=status.HTTP_200_OK,
 )
 async def get_user_by_id(
@@ -47,7 +52,7 @@ async def get_user_by_id(
     return user
 
 
-@router.get("/", response_model=list[ResponseUser])
+@router.get("/", response_model=list[ResponseUserWithOrder])
 async def get_list_users_by_id(
     start: int = Query(0, ge=0, description="Начальный диапазон списка пользователей"),
     stop: int = Query(3, gt=1, description="Конечный диапазон списка пользователей"),
