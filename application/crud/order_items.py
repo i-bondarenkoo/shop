@@ -5,9 +5,11 @@ from application.crud.product import get_product_by_id_crud
 from application.crud.order import get_order_by_id_crud
 from application.crud.order import OrderOrm
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 
 
 async def create_order_item_crud(data_in: CreateOrderItem, session: AsyncSession):
+
     product = await get_product_by_id_crud(
         product_id=data_in.product_id, session=session
     )
@@ -85,6 +87,9 @@ async def get_order_item_crud(order_id: int, product_id: int, session: AsyncSess
         .where(
             OrderItemOrm.order_id == order_id,
             OrderItemOrm.product_id == product_id,
+        )
+        .options(
+            selectinload(OrderItemOrm.product),
         )
         .order_by(OrderItemOrm.id)
     )

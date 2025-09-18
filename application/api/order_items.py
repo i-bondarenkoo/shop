@@ -1,3 +1,4 @@
+from calendar import c
 from fastapi import APIRouter, HTTPException, status, Path, Body, Query, Depends
 
 from application.db.database import db_helper
@@ -6,6 +7,7 @@ from application.schemas.order_items import (
     CreateOrderItem,
     ResponseOrderItem,
     UpdateOrderItem,
+    ResponseOrderItemAndProduct,
 )
 from application.crud.order_items import (
     create_order_item_crud,
@@ -28,7 +30,16 @@ async def create_order_item(
     ],
     session: AsyncSession = Depends(db_helper.get_session),
 ):
-
+    check_row_in_db = await get_order_item_crud(
+        order_id=data_in.order_id,
+        product_id=data_in.product_id,
+        session=session,
+    )
+    if check_row_in_db is not None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Такая запись уже существует",
+        )
     order_item = await create_order_item_crud(data_in=data_in, session=session)
     if order_item is None:
         raise HTTPException(
@@ -37,7 +48,9 @@ async def create_order_item(
     return order_item
 
 
-@router.get("/orders/{order_id}/items/{product_id}", response_model=ResponseOrderItem)
+@router.get(
+    "/orders/{order_id}/items/{product_id}", response_model=ResponseOrderItemAndProduct
+)
 async def get_order_item(
     order_id: Annotated[int, Path(gt=0, description="ID заказа")],
     product_id: Annotated[int, Path(gt=0, description="ID товара")],

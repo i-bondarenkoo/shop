@@ -23,8 +23,10 @@ from application.schemas.order_items import (
     UpdateOrderItem,
     ResponseOrderItemWithOutID,
     ResponseOrderItemWithOutProductID,
+    ResponseOrderItemAndProduct,
 )
 
 ResponseOrderWithRelationship.model_rebuild()
 ResponseUserWithOrder.model_rebuild()
 ResponseProductWithItems.model_rebuild()
+ResponseOrderItemAndProduct.model_rebuild()

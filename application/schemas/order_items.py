@@ -34,5 +34,13 @@ class ResponseOrderItemWithOutID(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class ResponseOrderItemAndProduct(BaseModel):
+    id: int
+    order_id: int
+    quantity: int
+    price_at_order: float
+    product: "ResponseProduct"
+
+
 class UpdateOrderItem(BaseModel):
     new_quantity: int
