@@ -1,17 +1,37 @@
+from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from application.models.order_items import OrderItemOrm
 from application.schemas.order_items import CreateOrderItem, UpdateOrderItem
 from application.crud.product import get_product_by_id_crud
 from application.crud.order import get_order_by_id_crud
-from application.crud.order import OrderOrm
+from application.models.order import OrderOrm
+from application.models.product import ProductOrm
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
 
+async def order_item_service(product_id: int, quantity: int, session: AsyncSession):
+    # блокируем строку в БД до конца транзакции
+    stmt = select(ProductOrm).where(ProductOrm.id == product_id).with_for_update()
+    result = await session.execute(stmt)
+    product = result.scalars().first()
+    if product is None:
+        return None
+    if product.stock_quantity < quantity:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Товара в таком количестве нет на складе",
+        )
+    product.stock_quantity -= quantity
+    return product
+
+
 async def create_order_item_crud(data_in: CreateOrderItem, session: AsyncSession):
 
-    product = await get_product_by_id_crud(
-        product_id=data_in.product_id, session=session
+    product = await order_item_service(
+        product_id=data_in.product_id,
+        session=session,
+        quantity=data_in.quantity,
     )
     if product is None:
         return None
@@ -105,6 +125,12 @@ async def delete_order_item_crud(product_id: int, order_id: int, session: AsyncS
     )
     if item is None:
         return None
+    stmt = select(ProductOrm).where(ProductOrm.id == product_id).with_for_update()
+    result = await session.execute(stmt)
+    product = result.scalars().first()
+    if product is None:
+        return None
+    product.stock_quantity += item.quantity
     await session.delete(item)
     await session.flush()
     order = await session.get(OrderOrm, order_id)
