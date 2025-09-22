@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from application.auth.security import hash_password
+from application.utils.security import hash_password
 from application.schemas.user import CreateUser, UpdateUser
 from application.models.user import UserOrm
 from sqlalchemy import select
