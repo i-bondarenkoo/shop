@@ -25,6 +25,7 @@ from application.schemas.order_items import (
     ResponseOrderItemWithOutProductID,
     ResponseOrderItemAndProduct,
 )
+from application.schemas.token import TokenResponse
 
 ResponseOrderWithRelationship.model_rebuild()
 ResponseUserWithOrder.model_rebuild()

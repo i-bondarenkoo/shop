@@ -1,5 +1,5 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import BaseModel, PostgresDsn
+from pydantic import BaseModel
 
 
 class RunConfig(BaseModel):
@@ -9,6 +9,12 @@ class RunConfig(BaseModel):
 
 class ApiPrefix(BaseModel):
     prefix: str = "/api"
+
+
+class TokenConfig(BaseModel):
+    algorithm: str = "HS256"
+    key: str = "75a11ced7c40cd7232670caf2929279500d0ac354b1fc622b79c531c7f56aced"
+    access_token_expire_minutes: int = 30
 
 
 class Settings(BaseSettings):
@@ -24,6 +30,7 @@ class Settings(BaseSettings):
     # так же можно указать префикс тогда поиск префикс + имя атрибута
     db_url: str
     db_echo: bool = True
+    token: TokenConfig = TokenConfig()
 
 
 settings = Settings()
