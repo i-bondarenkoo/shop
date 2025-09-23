@@ -44,11 +44,11 @@ def decode_jwt(
     return decode_token
 
 
-def create_access_token(user_data: CreateUser):
+def create_access_token(data: CreateUser):
     payload: dict = {
-        "username": user_data.username,
+        "username": data.username,
         "token_type": ACCESS_TOKEN,
-        "email": user_data.email,
+        "email": data.email,
     }
     access_token = create_jwt(
         payload=payload,
