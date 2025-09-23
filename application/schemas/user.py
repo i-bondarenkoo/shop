@@ -13,6 +13,11 @@ class CreateUser(BaseModel):
     password: str
 
 
+class LoginUser(BaseModel):
+    email: EmailStr
+    password: str
+
+
 class ResponseUser(BaseModel):
     id: int
     email: EmailStr

@@ -1,14 +1,13 @@
 from fastapi import APIRouter, Depends, Body, HTTPException, status
 from typing import Annotated
 from fastapi.security import OAuth2PasswordBearer
-from application.schemas.user import CreateUser
+from pydantic import EmailStr
 from application.schemas.token import TokenResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from application.db.database import db_helper
-from application.crud.user import create_user_crud
 from application.auth.jwt import create_access_token
-from application.schemas.token import TokenResponse
-
+from application.schemas.user import LoginUser
+from application.crud.user import get_user_by_email_crud
 router = APIRouter(
     prefix="/auth",
     tags=["Auth"],
@@ -17,13 +16,16 @@ router = APIRouter(
 oauth2scheme = OAuth2PasswordBearer(tokenUrl="/auth/register")
 
 
-@router.post("/register", response_model=TokenResponse)
-async def register_user(
-    user_data: Annotated[
-        CreateUser, Body(description="Данные пользователя для регистрации")
+
+
+@router.post("/login")
+async def login_user(
+    data: Annotated[
+        LoginUser, Body(description="Данные для авторизации, логин и пароль")
     ],
     session: AsyncSession = Depends(db_helper.get_session),
 ):
-    user = await create_user_crud(user_data=user_data, session=session)
-    token = create_access_token(user_data=user_data)
-    return TokenResponse(token_type="Bearer", token=token)
+    user = await get_user_by_email_crud(data=data, session=session)
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='Неверный логин или пароль')
+    token = 

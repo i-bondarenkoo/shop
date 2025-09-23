@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from application.utils.security import hash_password
-from application.schemas.user import CreateUser, UpdateUser
+from application.schemas.user import CreateUser, LoginUser, UpdateUser
 from application.models.user import UserOrm
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
@@ -75,3 +75,12 @@ async def delete_user_crud(user_id: int, session: AsyncSession):
     await session.delete(user)
     await session.commit()
     return {"message": "Пользователь удален"}
+
+
+async def get_user_by_email_crud(data: LoginUser, session: AsyncSession):
+    stmt = select(UserOrm).where(UserOrm.email == data.email)
+    result = await session.execute(stmt)
+    user = result.scalars().one_or_none()
+    if user is None:
+        return None
+    return user

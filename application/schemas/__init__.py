@@ -2,6 +2,7 @@ from application.schemas.user import (
     CreateUser,
     ResponseUser,
     UpdateUser,
+    LoginUser,
     ResponseUserWithOrder,
 )
 from application.schemas.product import (
