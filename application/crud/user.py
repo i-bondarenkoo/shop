@@ -1,3 +1,4 @@
+from pydantic import EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
 from application.utils.security import hash_password
 from application.schemas.user import CreateUser, LoginUser, UpdateUser
@@ -77,8 +78,8 @@ async def delete_user_crud(user_id: int, session: AsyncSession):
     return {"message": "Пользователь удален"}
 
 
-async def get_user_by_email_crud(data: LoginUser, session: AsyncSession):
-    stmt = select(UserOrm).where(UserOrm.email == data.email)
+async def get_user_by_username_crud(data: LoginUser, session: AsyncSession):
+    stmt = select(UserOrm).where(UserOrm.username == data.username)
     result = await session.execute(stmt)
     user = result.scalars().one_or_none()
     if user is None:

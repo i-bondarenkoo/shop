@@ -1,6 +1,6 @@
-from pydantic import ConfigDict, BaseModel
+from pydantic import BaseModel
 
 
 class TokenResponse(BaseModel):
     token_type: str = "Bearer"
-    token: str
+    access_token: str

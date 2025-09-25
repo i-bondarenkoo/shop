@@ -1,7 +1,7 @@
 from datetime import timedelta, datetime
 import jwt
 from application.core.config import settings
-from application.schemas.user import CreateUser
+from application.models.user import UserOrm
 
 ACCESS_TOKEN = "access"
 REFRESH_TOKEN = "refresh"
@@ -44,11 +44,12 @@ def decode_jwt(
     return decode_token
 
 
-def create_access_token(data: CreateUser):
+def create_access_token(data: UserOrm):
     payload: dict = {
         "username": data.username,
         "token_type": ACCESS_TOKEN,
         "email": data.email,
+        # "id": data.id,
     }
     access_token = create_jwt(
         payload=payload,
