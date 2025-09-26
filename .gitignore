@@ -207,7 +207,7 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 postgresdata/
-
+test_postgresdata/
 # Marimo
 marimo/_static/
 marimo/_lsp/

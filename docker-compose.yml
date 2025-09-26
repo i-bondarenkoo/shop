@@ -10,3 +10,17 @@ services:
       - "5435:5432"
     volumes:
       - ./postgresdata:/var/lib/postgresql/data
+
+  test_db:
+    image: postgres
+    environment:
+      POSTGRES_DB: test_shop_app
+      POSTGRES_USER: test123
+      POSTGRES_PASSWORD: test123
+    ports:
+    #Внешний порт 5436 будет перенаправляться на внутренний порт контейнера 5432
+      - "5436:5432"
+    volumes:
+      - ./test_postgresdata:/var/lib/postgresql/data
+
+   
