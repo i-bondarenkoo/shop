@@ -8,9 +8,9 @@ from application.core.config import settings
 
 class DatabaseHelper:
 
-    def __init__(self):
+    def __init__(self, db_url: str):
         self.engine: AsyncEngine = create_async_engine(
-            url=settings.db_url,
+            url=db_url,
             echo=settings.db_echo,
         )
         self.session_factory = async_sessionmaker(
@@ -29,4 +29,5 @@ class DatabaseHelper:
             yield session
 
 
-db_helper = DatabaseHelper()
+db_helper = DatabaseHelper(settings.db_url)
+test_db_helper = DatabaseHelper(settings.test_db_url)
