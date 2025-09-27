@@ -24,8 +24,20 @@ from application.db.base import Base
 from application.core.config import settings
 from application import models
 
+
 target_metadata = Base.metadata
-config.set_main_option("sqlalchemy.url", settings.db_url)
+
+# Получаем аргументы из командной строки через -x
+# Пример - alembic -x db=test upgrade head
+db_name = context.get_x_argument(as_dictionary=True).get("db", "main")
+
+if db_name == "test":
+    url = settings.test_db_url
+else:
+    url = settings.db_url
+
+# здесь в зависимость от того с каким аргументом запускаем, используем нужную строку подключения
+config.set_main_option("sqlalchemy.url", url)
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
