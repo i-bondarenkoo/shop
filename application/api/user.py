@@ -6,6 +6,7 @@ from application.crud.user import (
     get_list_users_by_id_crud,
     update_user_crud,
     delete_user_crud,
+    get_user_by_email,
 )
 from application.schemas.user import (
     CreateUser,
@@ -30,6 +31,12 @@ async def create_user(
     ],
     session: AsyncSession = Depends(db_helper.get_session),
 ):
+    check_email = get_user_by_email(email=user_data.email, session=session)
+    if check_email is not None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Пользователь с такой почтой уже существует",
+        )
     return await create_user_crud(user_data=user_data, session=session)
 
 

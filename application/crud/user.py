@@ -15,7 +15,8 @@ async def create_user_crud(user_data: CreateUser, session: AsyncSession):
         hashed_password=hash_password(user_data.password),
     )
     session.add(new_user)
-    await session.commit()
+    # await session.commit()
+    await session.flush()
     await session.refresh(new_user)
     return new_user
 
@@ -80,6 +81,15 @@ async def delete_user_crud(user_id: int, session: AsyncSession):
 
 async def get_user_by_username_crud(data: LoginUser, session: AsyncSession):
     stmt = select(UserOrm).where(UserOrm.username == data.username)
+    result = await session.execute(stmt)
+    user = result.scalars().one_or_none()
+    if user is None:
+        return None
+    return user
+
+
+async def get_user_by_email(email: EmailStr, session: AsyncSession):
+    stmt = select(UserOrm).where(UserOrm.email == email)
     result = await session.execute(stmt)
     user = result.scalars().one_or_none()
     if user is None:

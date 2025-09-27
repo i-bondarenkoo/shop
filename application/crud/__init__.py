@@ -5,6 +5,7 @@ from application.crud.user import (
     update_user_crud,
     delete_user_crud,
     get_user_by_username_crud,
+    get_user_by_email,
 )
 from application.crud.product import (
     create_product_crud,
