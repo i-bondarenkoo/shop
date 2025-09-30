@@ -36,17 +36,6 @@ async def make_order_data(create_user_db):
     return order
 
 
-@pytest_asyncio.fixture(scope="function")
-async def make_user_data_2():
-    user = CreateUser(
-        email="john@example.com",
-        username="johnny",
-        is_active=False,
-        password="johnny",
-    )
-    return user
-
-
 # функция создания сессии для подключение к БД
 @pytest_asyncio.fixture(scope="function")
 async def session_test_db():
