@@ -8,8 +8,8 @@ from application.crud.user import create_user_crud
 from application.crud.order import create_order_crud
 
 
-@pytest_asyncio.fixture(scope="session")
-async def event_loop():
+@pytest.fixture(scope="session")
+def event_loop():
     loop = asyncio.new_event_loop()
     yield loop
     loop.close()
@@ -48,14 +48,14 @@ async def make_user_data_2():
 
 
 # функция создания сессии для подключение к БД
-@pytest_asyncio.fixture
-async def session_test_db(scope="function"):
-    async for session in test_db_helper.get_session():
+@pytest_asyncio.fixture(scope="function")
+async def session_test_db():
+    async with test_db_helper.session_factory() as session:
         try:
             yield session
         finally:
             await session.rollback()
-            # await session.close()
+            await session.close()
 
 
 # crud функция которая создаст строку в тестовой БД

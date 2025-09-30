@@ -43,6 +43,5 @@ async def test_get_user_by_id(
     assert isinstance(response, UserOrm)
     assert response.username == make_user_data.username
     assert response.email == make_user_data.email
-
     # assert response.orders[0].status == make_order_data.status
     # assert response.orders[0].user_id == make_order_data.user_id
