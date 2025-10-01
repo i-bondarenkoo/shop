@@ -6,6 +6,7 @@ from application.schemas.user import CreateUser
 from application.db.database import test_db_helper
 from application.crud.user import create_user_crud
 from application.crud.order import create_order_crud
+from application.db.base import Base
 
 
 @pytest.fixture(scope="session")
@@ -44,7 +45,7 @@ async def session_test_db():
             yield session
         finally:
             await session.rollback()
-            await session.close()
+            # await session.close()
 
 
 # crud функция которая создаст строку в тестовой БД
