@@ -31,7 +31,7 @@ async def create_user(
     ],
     session: AsyncSession = Depends(db_helper.get_session),
 ):
-    check_email = get_user_by_email(email=user_data.email, session=session)
+    check_email = await get_user_by_email(email=user_data.email, session=session)
     if check_email is not None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

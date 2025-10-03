@@ -15,8 +15,8 @@ async def create_user_crud(user_data: CreateUser, session: AsyncSession):
         hashed_password=hash_password(user_data.password),
     )
     session.add(new_user)
-    # await session.commit()
-    await session.flush()
+    await session.commit()
+    # await session.flush()
     await session.refresh(new_user)
     return new_user
 
