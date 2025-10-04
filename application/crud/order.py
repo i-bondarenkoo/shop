@@ -15,8 +15,8 @@ async def create_order_crud(order_data: CreateOrder, session: AsyncSession):
         return None
     new_order = OrderOrm(**order_data.model_dump())
     session.add(new_order)
-    # await session.commit()
-    await session.flush()
+    await session.commit()
+    # await session.flush()
     await session.refresh(new_order)
     return new_order
 
