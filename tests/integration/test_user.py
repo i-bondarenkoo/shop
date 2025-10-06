@@ -69,12 +69,55 @@ async def test_get_user_by_id(
     assert data["orders"][0]["user_id"] == user.id
 
 
-# @pytest.mark.asyncio
-# async def test_get_list_user_by_id(
-#     create_user_db,
-#     make_user_data,
-#     make_user_data_2,
-#     make_user_data_3,
-#     override_get_session,
-# ):
-#     pass
+@pytest.mark.asyncio
+async def test_get_list_user_by_id(
+    client,
+    order_factory,
+    user_factory,
+):
+    user = await user_factory(
+        email="user@example.com",
+        username="user",
+        password="pass1",
+        is_active=True,
+    )
+    user2 = await user_factory(
+        email="user2@example.com",
+        username="user2",
+        password="pass2",
+        is_active=True,
+    )
+    user3 = await user_factory(
+        email="user3@example.com",
+        username="user3",
+        password="pass3",
+        is_active=False,
+    )
+    order = await order_factory(
+        user=user,
+        status=OrderStatus.packed,
+    )
+    order2 = await order_factory(
+        user=user2,
+        status=OrderStatus.created,
+    )
+    order3 = await order_factory(
+        user=user,
+        status=OrderStatus.paid,
+    )
+    response = await client.get(f"/users/?start=0&stop=3")
+    assert response.status_code == 200
+    data = response.json()
+    assert data[0]["username"] == user.username
+    assert data[1]["username"] == user2.username
+    assert data[2]["username"] == user3.username
+    assert isinstance(data[0]["orders"], list)
+    assert isinstance(data[0], dict)
+    assert len(data) == 3
+    # заказы
+    assert len(data[0]["orders"]) == 2
+    # количество ключей в словаре
+    assert len(data[0]["orders"][0]) == 4
+    assert len(data[1]["orders"]) == 1
+    assert len(data[2]["orders"]) == 0
+    assert data[0]["orders"][1]["status"] == OrderStatus.paid

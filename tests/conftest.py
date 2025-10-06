@@ -80,7 +80,7 @@ def make_user_data():
 
 @pytest_asyncio.fixture(scope="function")
 async def user_factory(override_get_session):
-    async def _create_user(
+    async def create_user(
         email: EmailStr,
         username: str,
         password: str,
@@ -97,14 +97,14 @@ async def user_factory(override_get_session):
             session=override_get_session,
         )
 
-    return _create_user
+    return create_user
 
 
 @pytest_asyncio.fixture(scope="function")
 async def order_factory(override_get_session):
-    async def _create_order(
+    async def create_order(
         user: UserOrm,
-        status: OrderStatus = OrderStatus.created,
+        status: OrderStatus,
     ):
         order_data = CreateOrder(
             user_id=user.id,
@@ -115,7 +115,7 @@ async def order_factory(override_get_session):
             session=override_get_session,
         )
 
-    return _create_order
+    return create_order
 
 
 @pytest_asyncio.fixture(autouse=True)
