@@ -7,7 +7,7 @@ from application.main import app
 from application.db.database import test_db_helper, db_helper
 from application.models.user import UserOrm
 from application.schemas.order import CreateOrder
-from application.schemas.user import CreateUser
+from application.schemas.user import CreateUser, UpdateUser
 from application.db import Base
 from sqlalchemy import delete
 from application.crud.user import create_user_crud

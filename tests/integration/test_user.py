@@ -1,10 +1,11 @@
 import pytest
 from datetime import datetime
+from sqlalchemy.orm import selectinload
 from application.models.user import UserOrm
 from sqlalchemy import select
 from application.models.order import OrderOrm
 from application.schemas.order import OrderStatus
-from application.schemas.user import ResponseUser
+from application.schemas.user import ResponseUser, UpdateUser
 
 
 @pytest.mark.asyncio
@@ -41,7 +42,6 @@ async def test_get_user_by_id(
     client,
     user_factory,
     order_factory,
-    # override_get_session,
 ):
     user = await user_factory(
         email="user@example.com",
@@ -121,3 +121,86 @@ async def test_get_list_user_by_id(
     assert len(data[1]["orders"]) == 1
     assert len(data[2]["orders"]) == 0
     assert data[0]["orders"][1]["status"] == OrderStatus.paid
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    # список имен параметров для теста
+    "email, username",
+    # сами параметры
+    [
+        ("new_user@example.com", None),
+        (None, None),
+        ("new_user@example.com", "new_user123"),
+        (None, "new_user123"),
+    ],
+)
+async def test_update_user(
+    client,
+    user_factory,
+    email,
+    username,
+):
+    user = await user_factory(
+        email="user-email-test@example.com",
+        username="user-test123",
+        password="pass123",
+    )
+    update_user = UpdateUser(
+        email=email,
+        username=username,
+    )
+    response = await client.patch(
+        f"/users/{user.id}",
+        json=update_user.model_dump(),
+    )
+    if response:
+        assert response.status_code == 200
+        data = response.json()
+    else:
+        assert response.status_code == 400
+        assert response.detail == "Данные для обновление не переданы"
+    if username is not None:
+        assert data["username"] == username
+        assert data["username"] != user.username
+    if email is not None:
+        assert data["email"] == email
+        assert data["email"] != user.email
+
+
+@pytest.mark.asyncio
+async def test_delete_user(
+    client,
+    user_factory,
+    order_factory,
+    override_get_session,
+):
+    user = await user_factory(
+        email="del-test@example.com",
+        username="user333",
+        password="test111",
+    )
+    order = await order_factory(
+        user=user,
+        status=OrderStatus.paid,
+    )
+    query = (
+        select(UserOrm)
+        .where(UserOrm.id == user.id)
+        .options(
+            selectinload(UserOrm.orders),
+        )
+    )
+    result = await override_get_session.execute(query)
+    user_db = result.scalars().first()
+    assert user_db is not None
+    assert isinstance(user_db, UserOrm)
+    assert user_db.orders is not None
+    response = await client.delete(f"/users/{user.id}")
+    data = response.json()
+    assert isinstance(data, dict)
+    assert data == {"message": "Пользователь удален"}
+    query_after_delete = select(UserOrm).where(UserOrm.id == user.id)
+    more_result = await override_get_session.execute(query_after_delete)
+    del_usr = more_result.scalars().one_or_none()
+    assert del_usr is None
