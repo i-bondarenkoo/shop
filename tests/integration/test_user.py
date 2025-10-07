@@ -1,11 +1,14 @@
+import json
 import pytest
 from datetime import datetime
+
 from sqlalchemy.orm import selectinload
 from application.models.user import UserOrm
 from sqlalchemy import select
 from application.models.order import OrderOrm
 from application.schemas.order import OrderStatus
-from application.schemas.user import ResponseUser, UpdateUser
+from application.schemas.user import LoginUser, UpdateUser
+from tests.conftest import helper_make_user_schema
 
 
 @pytest.mark.asyncio
@@ -154,12 +157,11 @@ async def test_update_user(
         f"/users/{user.id}",
         json=update_user.model_dump(),
     )
-    if response:
-        assert response.status_code == 200
-        data = response.json()
+    data = response.json()
+    if response.status_code == 400:
+        assert data["detail"] == "Данные для обновление не переданы"
     else:
-        assert response.status_code == 400
-        assert response.detail == "Данные для обновление не переданы"
+        assert response.status_code == 200
     if username is not None:
         assert data["username"] == username
         assert data["username"] != user.username
@@ -204,3 +206,71 @@ async def test_delete_user(
     more_result = await override_get_session.execute(query_after_delete)
     del_usr = more_result.scalars().one_or_none()
     assert del_usr is None
+
+
+@pytest.mark.asyncio
+async def test_login_user(
+    client,
+    user_factory,
+):
+    user = await user_factory(
+        email="sam@example.com",
+        username="sam-bones",
+        is_active=True,
+        password="sammy",
+    )
+    login_data = helper_make_user_schema(user=user, password="sammy")
+    response = await client.post(
+        f"/auth/login",
+        data=login_data.model_dump(),
+    )
+    if response:
+        assert response.status_code == 200
+    data = response.json()
+    assert isinstance(data, dict)
+    assert isinstance(data["access_token"], str)
+    assert data["token_type"] == "Bearer"
+
+
+@pytest.mark.asyncio
+async def test_login_user_with_invalid_password(
+    client,
+    user_factory,
+):
+    user = await user_factory(
+        email="andy@example.com",
+        username="andy4351",
+        is_active=True,
+        password="andysupersecret",
+    )
+    login_data = helper_make_user_schema(user=user, password="invalid-test-pass")
+    response = await client.post(
+        "/auth/login",
+        data=login_data.model_dump(),
+    )
+    assert response.status_code == 403
+    data = response.json()
+    assert data["detail"] == "Неверный логин или пароль"
+
+
+@pytest.mark.asyncio
+async def test_create_user_with_duplicate_email(
+    client,
+    make_user_data,
+):
+    response = await client.post(
+        f"/users/",
+        json=make_user_data.model_dump(),
+    )
+    assert response.status_code == 201
+    data = response.json()
+    assert data["username"] == make_user_data.username
+    assert data["email"] == make_user_data.email
+
+    second_response = await client.post(
+        f"/users/",
+        json=make_user_data.model_dump(),
+    )
+    assert second_response.status_code == 400
+    second_data = second_response.json()
+    assert second_data["detail"] == "Пользователь с такой почтой уже существует"

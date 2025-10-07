@@ -7,7 +7,7 @@ from application.main import app
 from application.db.database import test_db_helper, db_helper
 from application.models.user import UserOrm
 from application.schemas.order import CreateOrder
-from application.schemas.user import CreateUser, UpdateUser
+from application.schemas.user import CreateUser, LoginUser, UpdateUser
 from application.db import Base
 from sqlalchemy import delete
 from application.crud.user import create_user_crud
@@ -129,3 +129,10 @@ async def clean_db():
         for table in reversed(Base.metadata.sorted_tables):
             await session.execute(delete(table))
         await session.commit()
+
+
+def helper_make_user_schema(user: UserOrm, password: str):
+    return LoginUser(
+        username=user.username,
+        password=password,
+    )
