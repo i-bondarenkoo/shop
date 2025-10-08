@@ -224,8 +224,8 @@ async def test_login_user(
         f"/auth/login",
         data=login_data.model_dump(),
     )
-    if response:
-        assert response.status_code == 200
+
+    assert response.status_code == 200
     data = response.json()
     assert isinstance(data, dict)
     assert isinstance(data["access_token"], str)
