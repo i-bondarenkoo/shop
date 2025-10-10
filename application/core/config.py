@@ -30,7 +30,7 @@ class Settings(BaseSettings):
     # так же можно указать префикс тогда поиск префикс + имя атрибута
     db_url: str
     test_db_url: str
-    db_echo: bool = True
+    db_echo: bool = False
     token: TokenConfig = TokenConfig()
 
 

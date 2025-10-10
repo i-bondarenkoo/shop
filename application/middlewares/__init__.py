@@ -1,0 +1,1 @@
+from application.middlewares.logging_middleware import log_new_request
